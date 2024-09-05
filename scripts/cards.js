@@ -30,4 +30,3 @@ const initialCards = [
     link: "https://i.yapx.ru/X6uug.png",
   },
 ];
-
