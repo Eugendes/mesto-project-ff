@@ -15,13 +15,15 @@ function addCard(initialCards) {
   templateElement.querySelector(".card__image").src = cardLink;
   templateList.append(templateElement);
 
-  templateElement.querySelector(".card__delete-button").addEventListener("click", deleteCard);
+  templateElement
+    .querySelector(".card__delete-button")
+    .addEventListener("click", deleteCard);
 }
 
 // @todo: Функция удаления карточки..................................
 
 function deleteCard(event) {
-  const card = event.target.closest('.card');
+  const card = event.target.closest(".card");
   if (card) {
     card.remove();
   }
@@ -33,6 +35,6 @@ initialCards.forEach((item) => {
   addCard({
     cardTitle: item.name,
     cardAlt: item.alt,
-    cardLink: item.link
+    cardLink: item.link,
   });
 });
