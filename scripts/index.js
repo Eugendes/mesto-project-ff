@@ -1,4 +1,5 @@
 import { cardsData } from "./cards.js";
+
 // @todo: Темплейт карточки.........................................
 
 const templateCard = document.querySelector("#card-template").content;
