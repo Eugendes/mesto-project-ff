@@ -1,5 +1,3 @@
-import { cardsData } from "./cards.js";
-
 // @todo: Темплейт карточки.........................................
 
 const templateCard = document.querySelector("#card-template").content;
@@ -9,32 +7,32 @@ const templateList = document.querySelector(".places__list");
 
 // @todo: Функция создания карточки..................................
 
-function addCard(cardTitle, cardLink) {
+function addCard(initialCards) {
+  const { cardTitle, cardAlt, cardLink } = initialCards;
   const templateElement = templateCard.querySelector(".card").cloneNode(true);
-  templateElement.querySelector(".card__image").src = cardLink;
   templateElement.querySelector(".card__title").textContent = cardTitle;
+  templateElement.querySelector(".card__image").alt = cardAlt;
+  templateElement.querySelector(".card__image").src = cardLink;
   templateList.append(templateElement);
 
-  const deleteButtons = document.querySelectorAll(".card__delete-button").forEach((Button) => 
-    Button.addEventListener("click", deleteCard));
+  templateElement.querySelector(".card__delete-button").addEventListener("click", deleteCard);
 }
 
 // @todo: Функция удаления карточки..................................
 
-function deleteCard() {
-  const button = event.target.parentElement.remove();
+function deleteCard(event) {
+  const card = event.target.closest('.card');
+  if (card) {
+    card.remove();
+  }
 }
 
 // @todo: Вывести карточки на страницу...............................
 
-cardsData.forEach((item) => {
-  const names = item.name;
-  const links = item.link;
-  addCard(names, links);
+initialCards.forEach((item) => {
+  addCard({
+    cardTitle: item.name,
+    cardAlt: item.alt,
+    cardLink: item.link
+  });
 });
-/*
-for (let i = 0; i < cardsData.length; i++) {
-  const names = cardsData.map((card) => card.name);
-  const links = cardsData.map((card) => card.link);
-  addCard(names[i], links[i]);
-}*/
