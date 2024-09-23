@@ -1,9 +1,14 @@
 // @todo: Импортируем файлы .js и .css
-import { initialCards, createCard, renderCard } from "../components/cards.js";
+import { 
+  initialCards, 
+  createCard, 
+  renderCard 
+} from "../components/cards.js";
 import {
   openPopupSlowly,
   closePopupButton,
   closePopupElse,
+  editPopup,
 } from "../components/modal.js";
 import "../styles/index.css";
 
@@ -34,47 +39,13 @@ export const popups = {
   bigCard: document.querySelector(".popup_type_image"),
 };
 
-// @todo: Функция редактирования попапа
-function editPopup(pop) {
-  pop.style.display = "flex";
-
-  openPopupSlowly(pop);
-
-  if (pop === popups.edit) {
-    const titleName = document.querySelector(".profile__title");
-    const titleType = document.querySelector(".profile__description");
-    const name = pop.querySelector(".popup__input_type_name");
-    const type = pop.querySelector(".popup__input_type_description");
-
-    name.value = titleName.textContent;
-    type.value = titleType.textContent;
-
-    pop.querySelector(".popup__button").addEventListener("click", (evt) => {
-      evt.preventDefault();
-      titleName.textContent = name.value;
-      titleType.textContent = type.value;
-      closePopupButton(pop);
-    });
-  }
-
-  if (pop === popups.newCard) {
-    const cardName = pop.querySelector(".popup__input_type_card-name");
-    const cardUrl = pop.querySelector(".popup__input_type_url");
-
-    pop.querySelector(".popup__button").addEventListener("click", (event) => {
-      event.preventDefault();
-      if (cardName.value && cardUrl.value) {
-        const cardElement = {
-          cardTitle: cardName.value,
-          cardAlt: cardName.value,
-          cardLink: cardUrl.value,
-        };
-        renderCard(createCard(cardElement));
-        closePopupButton(pop);
-      }
-    });
-  }
-}
+// @todo: Обработчики открытия попапов
+document
+  .querySelector(".profile__edit-button")
+  .addEventListener("click", () => editPopup(popups.edit));
+document
+  .querySelector(".profile__add-button")
+  .addEventListener("click", () => editPopup(popups.newCard));
 
 // @todo: Функция для добавления обработчиков событий закрытия
 function setupPopupCloseHandlers(popup) {
@@ -86,14 +57,6 @@ function setupPopupCloseHandlers(popup) {
 
 // @todo: Настройка обработчиков событий для всех попапов
 Object.values(popups).forEach(setupPopupCloseHandlers);
-
-// @todo: Обработчики открытия попапов
-document
-  .querySelector(".profile__edit-button")
-  .addEventListener("click", () => editPopup(popups.edit));
-document
-  .querySelector(".profile__add-button")
-  .addEventListener("click", () => editPopup(popups.newCard));
 
 // @todo: Обработчик для закрытия попапов с клавиатуры
 document.addEventListener("keydown", (evt) => {

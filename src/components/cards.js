@@ -79,4 +79,4 @@ function deleteCard(event) {
   }
 }
 
-export { initialCards, createCard, renderCard }
+export { initialCards, createCard, renderCard };
