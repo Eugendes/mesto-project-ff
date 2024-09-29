@@ -1,14 +1,15 @@
 // @todo: Импортируем файлы .js и .css
-import { 
-  initialCards, 
-  createCard, 
-  renderCard 
-} from "../components/cards.js";
+import { initialCards } from "../components/cards.js";
+import {
+  likeActive,
+  deleteCard,
+  createCard,
+  renderCard,
+} from "../components/card.js";
 import {
   openPopupSlowly,
-  closePopupButton,
-  closePopupElse,
-  editPopup,
+  closePopupSlowly,
+  closePopupOverlay,
 } from "../components/modal.js";
 import "../styles/index.css";
 
@@ -24,11 +25,16 @@ document.querySelector(
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach((item) => {
-  const cardElement = createCard({
-    cardTitle: item.name,
-    cardAlt: item.alt,
-    cardLink: item.link,
-  });
+  const cardElement = createCard(
+    {
+      cardTitle: item.name,
+      cardAlt: item.alt,
+      cardLink: item.link,
+    },
+    deleteCard,
+    likeActive,
+    openPopupImage
+  );
   renderCard(cardElement);
 });
 
@@ -47,21 +53,36 @@ document
   .querySelector(".profile__add-button")
   .addEventListener("click", () => editPopup(popups.newCard));
 
+// @todo: Функции обработчиков событий закрытия
+function handlerListenerOverlay(popup) {
+  return function () {
+    closePopupSlowly(popup);
+  };
+}
+function handlerListenerEsc(popup) {
+  return function (evt) {
+    closePopupOverlay(evt, popup);
+  };
+}
+
 // @todo: Функция для добавления обработчиков событий закрытия
 function setupPopupCloseHandlers(popup) {
   popup
     .querySelector(".popup__close")
-    .addEventListener("click", () => closePopupButton(popup));
-  popup.addEventListener("mousedown", (evt) => closePopupElse(evt, popup));
+    .addEventListener("click", handlerListenerOverlay(popup));
+  popup.addEventListener("mousedown", handlerListenerEsc(popup));
+}
+
+// @todo: Функция для удаления обработчиков событий закрытия
+export function removePopupCloseHandlers(popup) {
+  popup
+    .querySelector(".popup__close")
+    .removeEventListener("click", handlerListenerOverlay(popup));
+  popup.removeEventListener("mousedown", handlerListenerEsc(popup));
 }
 
 // @todo: Настройка обработчиков событий для всех попапов
 Object.values(popups).forEach(setupPopupCloseHandlers);
-
-// @todo: Обработчик для закрытия попапов с клавиатуры
-document.addEventListener("keydown", (evt) => {
-  Object.values(popups).forEach((popup) => closePopupElse(evt, popup));
-});
 
 const cardList = document.querySelector(".places__list");
 const bigCard = popups.bigCard;
@@ -69,24 +90,77 @@ const bigCard = popups.bigCard;
 // @todo: Установка обработчика для кнопок закрытия
 popups.bigCard
   .querySelector(".popup__close")
-  .addEventListener("click", () => closePopupButton(bigCard));
+  .addEventListener("click", () => closePopupSlowly(bigCard));
 popups.bigCard.addEventListener("mousedown", (evt) =>
-  closePopupElse(evt, bigCard)
+  closePopupOverlay(evt, bigCard)
 );
 
-// @todo: Обработчик для открытия большого изображения
-cardList.addEventListener("click", (evt) => {
-  if (evt.target.classList.contains("card__image")) {
-    popupImage(evt);
+// @todo: Функции-обработчики событий
+function handlerEditCard(pop, titleName, name, titleType, type) {
+  return function (evt) {
+    evt.preventDefault();
+    titleName.textContent = name.value;
+    titleType.textContent = type.value;
+    closePopupSlowly(pop);
+  };
+}
+
+function handlerCreateCard(pop, cardName, cardUrl) {
+  return function (event) {
+    event.preventDefault();
+    if (cardName.value && cardUrl.value) {
+      const cardElement = {
+        cardTitle: cardName.value,
+        cardAlt: cardName.value,
+        cardLink: cardUrl.value,
+      };
+      renderCard(
+        createCard(cardElement, deleteCard, likeActive, openPopupImage)
+      );
+      closePopupSlowly(pop);
+    }
+  };
+}
+
+export let createCardListener;
+export let editCardListener;
+
+// @todo: Редактирование карточки
+function editPopup(pop) {
+  openPopupSlowly(pop);
+  // @todo: Редактирование профиля
+  if (pop === popups.edit) {
+    const titleName = document.querySelector(".profile__title");
+    const titleType = document.querySelector(".profile__description");
+    const name = pop.querySelector(".popup__input_type_name");
+    const type = pop.querySelector(".popup__input_type_description");
+
+    name.value = titleName.textContent;
+    type.value = titleType.textContent;
+
+    editCardListener = handlerEditCard(pop, titleName, name, titleType, type);
+    pop
+      .querySelector(".popup__form")
+      .addEventListener("submit", editCardListener);
   }
-});
+
+  // @todo: Создание новой карточки
+  if (pop === popups.newCard) {
+    const cardName = pop.querySelector(".popup__input_type_card-name");
+    const cardUrl = pop.querySelector(".popup__input_type_url");
+
+    createCardListener = handlerCreateCard(pop, cardName, cardUrl);
+    pop
+      .querySelector(".popup__form")
+      .addEventListener("submit", createCardListener);
+  }
+}
 
 // @todo: Функция для открытия большого изображения
-function popupImage(evt) {
+function openPopupImage(evt) {
   const { src, alt } = evt.target;
   popups.bigCard.querySelector(".popup__image").src = src;
   popups.bigCard.querySelector(".popup__image").alt = alt;
   popups.bigCard.querySelector(".popup__caption").textContent = alt;
   openPopupSlowly(popups.bigCard);
-  popups.bigCard.style.display = "flex";
 }

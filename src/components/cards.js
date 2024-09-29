@@ -1,5 +1,3 @@
-// @todo: Импортируем изображения для css
-import like from "../images/like-active.svg";
 
 // @todo: Дынные для карточки
 const initialCards = [
@@ -35,48 +33,4 @@ const initialCards = [
   },
 ];
 
-// @todo: Темплейт карточки
-const templateCard = document.querySelector("#card-template").content;
-const templateList = document.querySelector(".places__list");
-
-// @todo: Функция создания карточки
-function createCard(cardData) {
-  const { cardTitle, cardAlt, cardLink } = cardData;
-  const templateElement = templateCard.querySelector(".card").cloneNode(true);
-  templateElement.querySelector(".card__title").textContent = cardTitle;
-  templateElement.querySelector(".card__image").alt = cardAlt;
-  templateElement.querySelector(".card__image").src = cardLink;
-
-  templateElement
-    .querySelector(".card__delete-button")
-    .addEventListener("click", deleteCard);
-
-  templateElement
-    .querySelector(".card__like-button")
-    .addEventListener("click", likeActive);
-
-  return templateElement;
-}
-
-// @todo: Функция рендеринга карточки
-function renderCard(cardElement) {
-  templateList.prepend(cardElement);
-}
-
-// @todo: Установка обработчика для кнопок лайков
-function likeActive(evt) {
-  const button = evt.currentTarget;
-  button.style.backgroundImage = button.style.backgroundImage
-    ? ""
-    : `url(${like})`;
-}
-
-// @todo: Функция удаления карточки
-function deleteCard(event) {
-  const card = event.target.closest(".card");
-  if (card) {
-    card.remove();
-  }
-}
-
-export { initialCards, createCard, renderCard };
+export { initialCards };
