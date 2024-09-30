@@ -73,41 +73,32 @@ function setupPopupCloseHandlers(popup) {
   popup.addEventListener("mousedown", handlerListenerEsc(popup));
 }
 
-// @todo: Функция для удаления обработчиков событий закрытия
-export function removePopupCloseHandlers(popup) {
-  popup
-    .querySelector(".popup__close")
-    .removeEventListener("click", handlerListenerOverlay(popup));
-  popup.removeEventListener("mousedown", handlerListenerEsc(popup));
-}
-
 // @todo: Настройка обработчиков событий для всех попапов
 Object.values(popups).forEach(setupPopupCloseHandlers);
 
-const cardList = document.querySelector(".places__list");
-const bigCard = popups.bigCard;
+// Обработчик для формы редактирования профиля
+const titleName = document.querySelector(".profile__title");
+const titleType = document.querySelector(".profile__description");
+const nameInput = popups.edit.querySelector(".popup__input_type_name");
+const typeInput = popups.edit.querySelector(".popup__input_type_description");
 
-// @todo: Установка обработчика для кнопок закрытия
-popups.bigCard
-  .querySelector(".popup__close")
-  .addEventListener("click", () => closePopupSlowly(bigCard));
-popups.bigCard.addEventListener("mousedown", (evt) =>
-  closePopupOverlay(evt, bigCard)
-);
-
-// @todo: Функции-обработчики событий
-function handlerEditCard(pop, titleName, name, titleType, type) {
-  return function (evt) {
+popups.edit
+  .querySelector(".popup__form")
+  .addEventListener("submit", function (evt) {
     evt.preventDefault();
-    titleName.textContent = name.value;
-    titleType.textContent = type.value;
-    closePopupSlowly(pop);
-  };
-}
+    titleName.textContent = nameInput.value;
+    titleType.textContent = typeInput.value;
+    closePopupSlowly(popups.edit);
+  });
 
-function handlerCreateCard(pop, cardName, cardUrl) {
-  return function (event) {
-    event.preventDefault();
+// Обработчик для формы создания новой карточки
+const cardName = popups.newCard.querySelector(".popup__input_type_card-name");
+const cardUrl = popups.newCard.querySelector(".popup__input_type_url");
+
+popups.newCard
+  .querySelector(".popup__form")
+  .addEventListener("submit", function (evt) {
+    evt.preventDefault();
     if (cardName.value && cardUrl.value) {
       const cardElement = {
         cardTitle: cardName.value,
@@ -117,13 +108,12 @@ function handlerCreateCard(pop, cardName, cardUrl) {
       renderCard(
         createCard(cardElement, deleteCard, likeActive, openPopupImage)
       );
-      closePopupSlowly(pop);
+      closePopupSlowly(popups.newCard);
     }
-  };
-}
+  });
 
-export let createCardListener;
-export let editCardListener;
+const cardList = document.querySelector(".places__list");
+const bigCard = popups.bigCard;
 
 // @todo: Редактирование карточки
 function editPopup(pop) {
@@ -137,22 +127,14 @@ function editPopup(pop) {
 
     name.value = titleName.textContent;
     type.value = titleType.textContent;
-
-    editCardListener = handlerEditCard(pop, titleName, name, titleType, type);
-    pop
-      .querySelector(".popup__form")
-      .addEventListener("submit", editCardListener);
   }
 
   // @todo: Создание новой карточки
   if (pop === popups.newCard) {
     const cardName = pop.querySelector(".popup__input_type_card-name");
     const cardUrl = pop.querySelector(".popup__input_type_url");
-
-    createCardListener = handlerCreateCard(pop, cardName, cardUrl);
-    pop
-      .querySelector(".popup__form")
-      .addEventListener("submit", createCardListener);
+    cardName.value = "";
+    cardUrl.value = "";
   }
 }
 
