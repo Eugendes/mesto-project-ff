@@ -1,1 +1,5 @@
-https://github.com/Eugendes/mesto-project-ff.git
+https://eugendes.github.io/mesto-project-ff/
+
+Проект написан Евгением
+
+mesto-project-ff
