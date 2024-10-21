@@ -117,8 +117,18 @@ popups.edit
     const about = typeInput.value;
     titleName.textContent = name;
     titleType.textContent = about;
-    editProfile({ name, about });
-    closePopupSlowly(popups.edit);
+    const saveButton = popups.edit.querySelector(".popup__button");
+    saveButton.textContent = "Сохранение...";
+    saveButton.disabled = true;
+
+    editProfile({ name, about })
+      .then(() => {
+        closePopupSlowly(popups.edit);
+      })
+      .finally(() => {
+        saveButton.textContent = "Сохранить";
+        saveButton.disabled = false;
+      });
   });
 
 // Обработчик для формы создания новой карточки
@@ -129,6 +139,10 @@ popups.newCard
   .querySelector(".popup__form")
   .addEventListener("submit", function (evt) {
     evt.preventDefault();
+    const saveButton = popups.newCard.querySelector(".popup__button");
+    saveButton.textContent = "Сохранение...";
+    saveButton.disabled = true;
+
     if (cardName.value && cardUrl.value) {
       const cardElement = {
         cardTitle: cardName.value,
@@ -157,8 +171,9 @@ popups.newCard
           );
           closePopupSlowly(popups.newCard);
         })
-        .catch((err) => {
-          console.error("Ошибка при создании новой карточки:", err);
+        .finally(() => {
+          saveButton.textContent = "Сохранить";
+          saveButton.disabled = false;
         });
     }
   });
@@ -168,13 +183,25 @@ const avatarInput = document.querySelector(".popup__input_type_avatar");
 const profileImageElement = document.querySelector(".profile__image");
 
 popups.newProfile
-  .querySelector(".popup__form")
+  .querySelector(
+    ".popup__fhttps://github.com/Eugendes/mesto-project-ff/actionsorm"
+  )
   .addEventListener("submit", function (evt) {
     evt.preventDefault();
     const avatarUrl = avatarInput.value;
+    const saveButton = popups.newProfile.querySelector(".popup__button");
+    saveButton.textContent = "Сохранение...";
+    saveButton.disabled = true;
     profileImageElement.style.backgroundImage = `url('${avatarUrl}')`;
-    updateAvatar(avatarUrl);
-    closePopupSlowly(popups.newProfile);
+
+    updateAvatar(avatarUrl)
+      .then(() => {
+        closePopupSlowly(popups.newProfile);
+      })
+      .finally(() => {
+        saveButton.textContent = "Сохранить";
+        saveButton.disabled = false;
+      });
   });
 
 const cardList = document.querySelector(".places__list");
