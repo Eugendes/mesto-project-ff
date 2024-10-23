@@ -22,12 +22,9 @@ export const getCards = () => {
       console.log("Данные карточек получены:", result);
       return result;
     })
-    .catch(err => {
-      console.error("Ошибка при загрузке данных карточек:", err);
-    });
 }
 
-export const likeCards = (cardId) => {
+export const likeCard = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "PUT",
     headers: config.headers,
@@ -37,12 +34,9 @@ export const likeCards = (cardId) => {
       console.log("Лайк поставлен:", result);
       return result;
     })
-    .catch(err => {
-      console.error("Ошибка при лайке карточки:", err);
-    });
 }
 
-export const dislikeCards = (cardId) => {
+export const dislikeCard = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "DELETE",
     headers: config.headers,
@@ -52,9 +46,6 @@ export const dislikeCards = (cardId) => {
       console.log("Лайк убран:", result);
       return result;
     })
-    .catch(err => {
-      console.error("Ошибка при отмене лайка карточки:", err);
-    });
 }
 
 export const postCard = ({name, link}) => {
@@ -71,9 +62,6 @@ export const postCard = ({name, link}) => {
       console.log("Данные новой карточки получены:", result);
       return result;
     })
-    .catch(err => {
-      console.error("Ошибка при загрузке новой карточки:", err);
-    });
 }
 
 export const deleteCards = (cardId) => {
@@ -86,9 +74,6 @@ export const deleteCards = (cardId) => {
     console.log("Карточка удалена:", result);
     return result;
   })
-  .catch(err => {
-    console.error("Ошибка при удалении карточки:", err);
-  });
 }
 
 export const getUser = () => {
@@ -100,9 +85,6 @@ export const getUser = () => {
       console.log("Данные пользователя получены:", result);
       return result;
     })
-    .catch(err => {
-      console.error("Ошибка при загрузке данных пользователя:", err);
-    });
 }
 
 export const updateAvatar = (avatar) => {
@@ -118,9 +100,6 @@ export const updateAvatar = (avatar) => {
       console.log("Данные обновлены:", result);
       return result;
     })
-    .catch(err => {
-      console.error("Ошибка при обновлении аватарки профиля:", err);
-    });
 }
 
 export const editProfile = ({ name, about }) => {
@@ -137,7 +116,4 @@ export const editProfile = ({ name, about }) => {
       console.log("Данные обновлены:", result);
       return result;
     })
-    .catch(err => {
-      console.error("Ошибка при обновлении профиля:", err);
-    });
 };

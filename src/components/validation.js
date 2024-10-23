@@ -1,65 +1,68 @@
+const disableSubmitButton = (button, { inactiveButtonClass }) => {
+  button.classList.add(inactiveButtonClass);
+  button.disabled = true;
+};
+
+const addSubmitButton = (button, { inactiveButtonClass }) => {
+  button.classList.remove(inactiveButtonClass);
+  button.disabled = false;
+};
+
+const hideInputError = (input, errorClass, inputErrorClass, spanErrorClass) => {
+  const errorElement = input.parentElement.querySelector(spanErrorClass);
+  if (errorElement) {
+    input.classList.remove(inputErrorClass);
+    errorElement.textContent = "";
+    errorElement.classList.remove(errorClass);
+  }
+};
+
 // Функция валидации
 export function enableValidation(
-  { inputSelector, submitButtonSelector, inactiveButtonClass, errorClass },
+  { 
+    inputSelector, 
+    submitButtonSelector, 
+    inactiveButtonClass, 
+    inputErrorClass,
+    spanErrorClass,
+    errorClass },
   form
 ) {
   const inputs = form.querySelectorAll(inputSelector);
   const button = form.querySelector(submitButtonSelector);
 
-  button.classList.remove(inactiveButtonClass);
-  button.disabled = false;
+  button.classList.add(inactiveButtonClass);
+  button.disabled = true;
 
   // Функция для проверки валидности формы
   function checkFormValidity() {
     let isValid = true;
 
     inputs.forEach((input) => {
-      const errorElement = input.parentElement.querySelector(
-        ".popup__input_type_error"
-      );
-      const counter = input.value.length;
-      const simbol = /^[a-zA-Zа-яА-ЯёЁ\- ]+$/;
-      const urlRegex = /^(https?:\/\/[^\s]+)$/;
-      if (!input.value.trim()) {
-        input.classList.add("popup__input-error");
-        errorElement.textContent = input.validationMessage;
+      const customErrorMessage = input.dataset.errorMessage;
+      const errorElement = input.parentElement.querySelector(spanErrorClass);
+      if (!input.checkValidity()) {
+        input.classList.add(inputErrorClass);
+        if (input.type === "url") {
+          errorElement.textContent = input.validationMessage;
+        } 
+        else if (input.validity.patternMismatch) {
+          errorElement.textContent = customErrorMessage;
+        } 
+        else {
+          errorElement.textContent = input.validationMessage;
+        }
         errorElement.classList.add(errorClass);
         isValid = false;
       } else {
-        if (counter < 2 || counter > 40) {
-          input.classList.add("popup__input-error");
-          errorElement.textContent = input.validationMessage;
-          errorElement.classList.add(errorClass);
-          isValid = false;
-        } else {
-          if (input.type === "url" && !urlRegex.test(input.value.trim())) {
-            input.classList.add("popup__input-error");
-            errorElement.textContent = input.validationMessage;
-            errorElement.classList.add(errorClass);
-            isValid = false;
-          } else {
-            if (!simbol.test(input.value.trim()) && input.type !== "url") {
-              input.classList.add("popup__input-error");
-              errorElement.textContent =
-                "Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы";
-              errorElement.classList.add(errorClass);
-              isValid = false;
-            } else {
-              input.classList.remove("popup__input-error");
-              errorElement.textContent = "";
-              errorElement.classList.remove(errorClass);
-            }
-          }
-        }
+        hideInputError(input, errorClass, inputErrorClass, spanErrorClass);
       }
     });
 
     if (isValid) {
-      button.classList.remove(inactiveButtonClass);
-      button.disabled = false;
+      addSubmitButton(button, { inactiveButtonClass });
     } else {
-      button.classList.add(inactiveButtonClass);
-      button.disabled = true;
+      disableSubmitButton(button, { inactiveButtonClass });
     }
   }
 
@@ -69,19 +72,24 @@ export function enableValidation(
 }
 
 // Функция очистки полей валидации
- export function clearValidation(form, { submitButtonSelector, inactiveButtonClass }) {
-  const inputs = form.querySelectorAll('.popup__input');
+ export function clearValidation(
+  { 
+  inputSelector,
+  submitButtonSelector, 
+  inactiveButtonClass,
+  inputErrorClass,
+  spanErrorClass,
+  errorClass,
+  },
+  form
+) {
+  const inputs = form.querySelectorAll(inputSelector);
   const button = form.querySelector(submitButtonSelector);
 
   inputs.forEach((input) => {
-    const errorElement = input.parentElement.querySelector(".popup__input_type_error");
-    if (errorElement) {
-      input.classList.remove("popup__input-error");
-      errorElement.textContent = "";
-      errorElement.classList.remove("popup__error_visible");
-    }
+    hideInputError(input, errorClass, inputErrorClass, spanErrorClass);
   });
 
   button.classList.add(inactiveButtonClass);
-  button.disabled = false;
+  button.disabled = true;
 }

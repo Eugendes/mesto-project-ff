@@ -5,10 +5,7 @@ import {
   updateAvatar,
   editProfile,
 } from "../components/api.js";
-import { 
-  enableValidation, 
-  clearValidation 
-} from "../components/validation.js";
+import { enableValidation, clearValidation } from "../components/validation.js";
 import {
   likeActive,
   deleteCard,
@@ -115,15 +112,18 @@ popups.edit
     evt.preventDefault();
     const name = nameInput.value;
     const about = typeInput.value;
-    titleName.textContent = name;
-    titleType.textContent = about;
     const saveButton = popups.edit.querySelector(".popup__button");
     saveButton.textContent = "Сохранение...";
     saveButton.disabled = true;
 
     editProfile({ name, about })
-      .then(() => {
+      .then((response) => {
+        titleName.textContent = response.name;
+        titleType.textContent = response.about;
         closePopupSlowly(popups.edit);
+      })
+      .catch((err) => {
+        console.log(`Ошибка: ${err}`);
       })
       .finally(() => {
         saveButton.textContent = "Сохранить";
@@ -142,40 +142,32 @@ popups.newCard
     const saveButton = popups.newCard.querySelector(".popup__button");
     saveButton.textContent = "Сохранение...";
     saveButton.disabled = true;
-
-    if (cardName.value && cardUrl.value) {
-      const cardElement = {
-        cardTitle: cardName.value,
-        cardAlt: cardName.value,
-        cardLink: cardUrl.value,
-      };
-      const nameSys = cardName.value;
-      const linkSys = cardUrl.value;
-      postCard({ name: nameSys, link: linkSys })
-        .then((result) => {
-          renderCard(
-            createCard(
-              {
-                cardTitle: result.name,
-                cardAlt: result.name,
-                cardLink: result.link,
-                cardLikeCounter: result.likes,
-                cardId: result._id,
-                ownerId: result.owner._id,
-              },
-              deleteCard,
-              (evt) => likeActive(evt, result._id),
-              openPopupImage,
-              result.owner._id
-            )
-          );
-          closePopupSlowly(popups.newCard);
-        })
-        .finally(() => {
-          saveButton.textContent = "Сохранить";
-          saveButton.disabled = false;
-        });
-    }
+    const nameSys = cardName.value;
+    const linkSys = cardUrl.value;
+    postCard({ name: nameSys, link: linkSys })
+      .then((result) => {
+        renderCard(
+          createCard(
+            {
+              cardTitle: result.name,
+              cardAlt: result.name,
+              cardLink: result.link,
+              cardLikeCounter: result.likes,
+              cardId: result._id,
+              ownerId: result.owner._id,
+            },
+            deleteCard,
+            (evt) => likeActive(evt, result._id),
+            openPopupImage,
+            result.owner._id
+          )
+        );
+        closePopupSlowly(popups.newCard);
+      })
+      .finally(() => {
+        saveButton.textContent = "Сохранить";
+        saveButton.disabled = false;
+      });
   });
 
 // Обработчик для формы создания нового аватара профиля
@@ -183,20 +175,20 @@ const avatarInput = document.querySelector(".popup__input_type_avatar");
 const profileImageElement = document.querySelector(".profile__image");
 
 popups.newProfile
-  .querySelector(
-    ".popup__fhttps://github.com/Eugendes/mesto-project-ff/actionsorm"
-  )
+  .querySelector(".popup__form")
   .addEventListener("submit", function (evt) {
     evt.preventDefault();
     const avatarUrl = avatarInput.value;
     const saveButton = popups.newProfile.querySelector(".popup__button");
     saveButton.textContent = "Сохранение...";
     saveButton.disabled = true;
-    profileImageElement.style.backgroundImage = `url('${avatarUrl}')`;
-
     updateAvatar(avatarUrl)
-      .then(() => {
+      .then((response) => {
+        profileImageElement.style.backgroundImage = `url('${response.avatar}')`;
         closePopupSlowly(popups.newProfile);
+      })
+      .catch((err) => {
+        console.log(`Ошибка: ${err}`);
       })
       .finally(() => {
         saveButton.textContent = "Сохранить";
@@ -211,26 +203,24 @@ const bigCard = popups.bigCard;
 function editPopup(pop) {
   openPopupSlowly(pop);
 
+  // Инициализируем валидацию для ОТКРЫВАЕМОЙ формы
+  const validationConfig = {
+    inputSelector: ".popup__input",
+    submitButtonSelector: ".popup__button",
+    inactiveButtonClass: "popup__button_disabled",
+    inputErrorClass: "popup__input-error",
+    spanErrorClass: ".popup__input_type_error",
+    errorClass: "popup__error_visible",
+  };
+
   // Находим форму внутри ОТКРЫВАЕМОГО попапа
   const form = pop.querySelector(".popup__form");
 
   if (form && !pop.classList.contains("popup_type_image")) {
-    clearValidation(form, {
-      submitButtonSelector: ".popup__button",
-      inactiveButtonClass: "popup__button_disabled",
-    });
+    clearValidation(validationConfig , form);
   }
 
-  // Инициализируем валидацию для ОТКРЫВАЕМОЙ формы
-  enableValidation(
-    {
-      inputSelector: ".popup__input",
-      submitButtonSelector: ".popup__button",
-      inactiveButtonClass: "popup__button_disabled",
-      errorClass: "popup__error_visible",
-    },
-    form
-  );
+  enableValidation(validationConfig, form);
 
   // @todo: Редактирование профиля
   if (pop === popups.edit) {
@@ -249,7 +239,6 @@ function editPopup(pop) {
     const button = popups.newCard.querySelector(".popup__button");
     cardName.value = "";
     cardUrl.value = "";
-    button.classList.add("popup__button_disabled");
     button.disabled = false;
   }
 
@@ -257,7 +246,6 @@ function editPopup(pop) {
     const avatarUrl = pop.querySelector(".popup__input_type_avatar");
     const button = popups.newProfile.querySelector(".popup__button");
     avatarUrl.value = "";
-    button.classList.add("popup__button_disabled");
     button.disabled = false;
   }
 }
@@ -271,19 +259,3 @@ function openPopupImage(evt) {
   openPopupSlowly(popups.bigCard);
 }
 
-// @todo: Функция заполнения текста пользователя и аватара
-document.addEventListener("DOMContentLoaded", () => {
-  const profileTitle = document.querySelector(".profile__title");
-  const profileDescription = document.querySelector(".profile__description");
-  const profileAvatar = document.querySelector(".profile__image");
-
-  getUser()
-    .then(({ name, about, avatar }) => {
-      profileTitle.textContent = name;
-      profileDescription.textContent = about;
-      profileAvatar.style.backgroundImage = `url('${avatar}')`;
-    })
-    .catch((error) => {
-      console.error("Ошибка загрузки данных пользователя:", error);
-    });
-});

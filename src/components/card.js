@@ -1,4 +1,4 @@
-import { likeCards, dislikeCards, deleteCards } from "../components/api.js";
+import { likeCard, dislikeCard, deleteCards } from "../components/api.js";
 
 // @todo: Темплейт карточки
 const templateCard = document.querySelector("#card-template").content;
@@ -63,30 +63,38 @@ function likeActive(evt, cardId) {
   const button = evt.target.classList;
   const card = evt.target.closest(".card");
   const countElement = card.querySelector(".card__like__counter");
-  let count = parseInt(countElement.textContent, 10);
 
-  if (button.contains("card__like-button_is-active")) {
-    button.remove("card__like-button_is-active");
-    dislikeCards(cardId).then(() => {
-      count -= 1;
-      countElement.textContent = count;
+  const request = button.contains("card__like-button_is-active")
+    ? dislikeCard(cardId)
+    : likeCard(cardId);
+
+  request
+    .then((response) => {
+      const likes = response.likes.length;
+      button.contains("card__like-button_is-active")
+        ? button.remove("card__like-button_is-active")
+        : button.add("card__like-button_is-active");
+
+      countElement.textContent = likes;
+    })
+    .catch((err) => {
+      console.log(`Ошибка: ${err}`);
     });
-  } else {
-    button.add("card__like-button_is-active");
-    likeCards(cardId).then(() => {
-      count += 1;
-      countElement.textContent = count;
-    });
-  }
 }
+
 
 // @todo: Функция удаления карточки
 function deleteCard(evt) {
   const card = evt.target.closest(".card");
   const cardId = card.dataset.id;
   if (card) {
-    deleteCards(cardId);
-    card.remove();
+    deleteCards(cardId)
+      .then(() => {
+        card.remove();
+      }) 
+      .catch((err) => {
+        console.error(`Ошибка: ${err}`);
+      })
   }
 }
 
