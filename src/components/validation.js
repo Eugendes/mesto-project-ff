@@ -43,15 +43,7 @@ export function enableValidation(
       const errorElement = input.parentElement.querySelector(spanErrorClass);
       if (!input.checkValidity()) {
         input.classList.add(inputErrorClass);
-        if (input.type === "url") {
-          errorElement.textContent = input.validationMessage;
-        } 
-        else if (input.validity.patternMismatch) {
-          errorElement.textContent = customErrorMessage;
-        } 
-        else {
-          errorElement.textContent = input.validationMessage;
-        }
+        errorElement.textContent = input.validity.patternMismatch ? customErrorMessage : input.validationMessage;
         errorElement.classList.add(errorClass);
         isValid = false;
       } else {
@@ -90,6 +82,5 @@ export function enableValidation(
     hideInputError(input, errorClass, inputErrorClass, spanErrorClass);
   });
 
-  button.classList.add(inactiveButtonClass);
-  button.disabled = true;
+  disableSubmitButton(button, { inactiveButtonClass });
 }
